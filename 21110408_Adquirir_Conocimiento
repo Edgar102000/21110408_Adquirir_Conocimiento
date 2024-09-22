@@ -1,0 +1,65 @@
+import json
+import time
+
+# Cargar la base de conocimientos desde un archivo, o si no existe, crear una por defecto
+def cargar_conocimiento():
+    try:
+        with open('conocimiento.json', 'r') as archivo:
+            # Si ya hay un archivo con conocimientos previos, lo cargamos
+            return json.load(archivo)
+    except FileNotFoundError:
+        # Si el archivo no existe, inicializamos un diccionario con algunas respuestas básicas
+        print("No encontré el archivo de conocimiento, así que voy a empezar con una base de datos vacía.")
+        return {
+            "hola": "¡Hola! ¿Cómo estás?",
+            "¿cómo estás?": "Estoy bien, ¡gracias por preguntar! ¿Y tú?",
+            "¿de qué te gustaría hablar?": "Podemos hablar de lo que quieras. ¿Tienes algo en mente?"
+        }
+
+# Guardar el conocimiento actualizado en el archivo para que no se pierda
+def guardar_conocimiento(conocimiento):
+    with open('conocimiento.json', 'w') as archivo:
+        json.dump(conocimiento, archivo)
+    print("Conocimiento guardado en conocimiento.json")
+
+# Función que simula que el bot está "pensando"
+def pensar():
+    print("Chatbot: Hmm...", end="")
+    time.sleep(1)  # Pausa de 1 segundo para hacerlo parecer más natural
+    print(" déjame pensar...")
+
+# Si el bot no sabe cómo responder, pedimos ayuda para aprender
+def adquirir_conocimiento(conocimiento, pregunta):
+    pensar()
+    # Explicación de que el bot no sabe la respuesta
+    print(f"Uff, no tengo ni idea de cómo responder a '{pregunta}'. ¿Me puedes ayudar con eso?")
+    respuesta = input("Tú: ")
+    
+    # Guardamos la nueva pregunta/respuesta en el conocimiento
+    conocimiento[pregunta.lower()] = respuesta
+    guardar_conocimiento(conocimiento)
+    
+    # Confirmación de que aprendió algo nuevo
+    print(f"Chatbot: ¡Gracias! Ahora sé la respuesta a '{pregunta}'.")
+
+# Función principal que maneja el flujo del chat
+def chat():
+    conocimiento = cargar_conocimiento()
+    
+    # Saludo inicial
+    print("¡Hola! Soy un bot sencillo, pregúntame lo que quieras (o bueno, lo que sepas que puedo saber, jeje).")
+    
+    # Bucle principal del chat
+    while True:
+        pregunta = input("Tú: ").strip().lower()  # Convertimos a minúsculas para evitar diferencias
+
+        # Verificamos si la pregunta ya tiene una respuesta conocida
+        if pregunta in conocimiento:
+            pensar()
+            print(f"Chatbot: {conocimiento[pregunta]}")
+        else:
+            # Si no encontramos respuesta, adquirimos conocimiento nuevo
+            adquirir_conocimiento(conocimiento, pregunta)
+
+# Empezar el chat
+chat()
